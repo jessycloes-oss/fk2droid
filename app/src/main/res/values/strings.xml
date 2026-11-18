@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FK2Droid</string>
+    <string name="settings">Reglages FK2Droid</string>
+    <string name="starting">Demarrage...</string>
+
+    <string-array name="night_source_labels">
+        <item>Automatique (eclairage du Honda)</item>
+        <item>Toujours jour</item>
+        <item>Toujours nuit</item>
+    </string-array>
+    <string-array name="night_source_values">
+        <item>honda</item>
+        <item>day</item>
+        <item>night</item>
+    </string-array>
+    <string-array name="dpi_labels">
+        <item>120 - petit (plus d\'informations)</item>
+        <item>140</item>
+        <item>160 - normal (recommande)</item>
+        <item>180</item>
+        <item>200 - grand</item>
+    </string-array>
+    <string-array name="dpi_values">
+        <item>120</item>
+        <item>140</item>
+        <item>160</item>
+        <item>180</item>
+        <item>200</item>
+    </string-array>
+    <string-array name="resolution_labels">
+        <item>800 x 480 (ecran natif, recommande)</item>
+        <item>640 x 384 (plus fluide)</item>
+        <item>480 x 288 (secours, tres fluide)</item>
+    </string-array>
+    <string-array name="resolution_values">
+        <item>800x480</item>
+        <item>640x384</item>
+        <item>480x288</item>
+    </string-array>
+    <string-array name="fps_labels">
+        <item>30 images/s</item>
+        <item>25 images/s</item>
+        <item>20 images/s</item>
+        <item>15 images/s</item>
+    </string-array>
+    <string-array name="fps_values">
+        <item>30</item>
+        <item>25</item>
+        <item>20</item>
+        <item>15</item>
+    </string-array>
+    <string-array name="display_thread_labels">
+        <item>Automatique (recommande)</item>
+        <item>Oui</item>
+        <item>Non</item>
+    </string-array>
+    <string-array name="display_thread_values">
+        <item>auto</item>
+        <item>on</item>
+        <item>off</item>
+    </string-array>
+    <string-array name="video_format_labels">
+        <item>Automatique (recommande)</item>
+        <item>RGB565 (16 bits)</item>
+        <item>RGBX (32 bits)</item>
+    </string-array>
+    <string-array name="video_format_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="mic_source_labels">
+        <item>Automatique</item>
+        <item>MIC</item>
+        <item>VOICE_COMMUNICATION</item>
+        <item>VOICE_RECOGNITION</item>
+        <item>CAMCORDER</item>
+        <item>DEFAULT</item>
+    </string-array>
+    <string-array name="mic_source_values">
+        <item>auto</item>
+        <item>1</item>
+        <item>7</item>
+        <item>6</item>
+        <item>5</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="honda_sw_address_labels">
+        <item>260 - Menu (par defaut)</item>
+        <item>258 - Source</item>
+        <item>259 - Affichage</item>
+        <item>263 - En-tete source</item>
+        <item>265 - Lanceur</item>
+        <item>266 - i-MID</item>
+    </string-array>
+    <string-array name="honda_sw_address_values">
+        <item>260</item>
+        <item>258</item>
+        <item>259</item>
+        <item>263</item>
+        <item>265</item>
+        <item>266</item>
+    </string-array>
+    <string-array name="volume_mode_labels">
+        <item>Rendu au Honda (par defaut)</item>
+        <item>Volume du son Android Auto (barre Android)</item>
+        <item>Touche volume Android</item>
+    </string-array>
+    <string-array name="volume_mode_values">
+        <item>honda</item>
+        <item>stream</item>
+        <item>key</item>
+    </string-array>
+    <string-array name="sw_reg_mode_labels">
+        <item>A - inscription + affichage</item>
+        <item>B - inscription seule</item>
+        <item>C - affichage seul (par defaut)</item>
+    </string-array>
+    <string-array name="sw_reg_mode_values">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="volume_window_labels">
+        <item>Aucune (reinscription immediate)</item>
+        <item>1 seconde</item>
+        <item>2 secondes</item>
+        <item>3 secondes (par defaut)</item>
+        <item>5 secondes</item>
+        <item>10 secondes</item>
+    </string-array>
+    <string-array name="volume_window_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="video_decoder_labels">
+        <item>Automatique (materiel si possible)</item>
+        <item>Logiciel uniquement (FFmpeg)</item>
+    </string-array>
+    <string-array name="video_decoder_values">
+        <item>auto</item>
+        <item>sw</item>
+    </string-array>
+</resources>

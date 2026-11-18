@@ -1,0 +1,191 @@
+package com.fk2droid.protocol;
+
+import java.io.*;
+import java.nio.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+/** Tests sans materiel : un faux dongle repond comme un Carlinkit. Lancer : scripts/run_protocol_tests.sh */
+public class ProtocolTest {
+    static int failures = 0;
+    static void check(boolean ok, String what) {
+        System.out.println((ok ? "  OK   " : "  ECHEC ") + what);
+        if (!ok) failures++;
+    }
+
+    /** Faux transport : ce que l'app ecrit est analyse, ce que le "dongle" envoie est lu. */
+    static class FakeTransport implements Transport {
+        final PipedInputStream fromDongle = new PipedInputStream(1 << 20);
+        final PipedOutputStream dongleOut;
+        final List<Msg> sent = Collections.synchronizedList(new ArrayList<Msg>());
+        final ByteArrayOutputStream pending = new ByteArrayOutputStream();
+        FakeTransport() throws IOException { dongleOut = new PipedOutputStream(fromDongle); }
+        public void readFully(byte[] b, int off, int len) throws IOException {
+            int done = 0;
+            while (done < len) { int n = fromDongle.read(b, off + done, len - done); if (n < 0) throw new EOFException(); done += n; }
+        }
+        volatile int writeDelayMs;
+        public synchronized void write(byte[] d) throws IOException {
+            if (writeDelayMs > 0) try { Thread.sleep(writeDelayMs); } catch (InterruptedException e) { throw new IOException(e); }
+            try {
+                int[] tl = Msg.decodeHeader(d);
+                if (d.length != 16 + tl[1]) throw new IOException("longueur incoherente");
+                sent.add(new Msg(tl[0], Arrays.copyOfRange(d, 16, d.length)));
+            } catch (Msg.ProtocolException e) { throw new IOException(e); }
+        }
+        public void close() { try { dongleOut.close(); } catch (IOException ignored) {} }
+        void dongleSends(Msg m) throws IOException { dongleOut.write(m.encode()); dongleOut.flush(); }
+    }
+
+    static class Recorder implements DongleListener {
+        final BlockingQueue<String> events = new LinkedBlockingQueue<String>();
+        byte[] lastVideo; int lastAudioType = -1; int lastAudioLen;
+        public void onPhoneConnected(int t, boolean w) { events.add("connected:" + t + ":" + w); }
+        public void onPhoneDisconnected() { events.add("disconnected"); }
+        public void onVideo(int w, int h, byte[] d, int o, int l) { lastVideo = Arrays.copyOfRange(d, o, o + l); events.add("video:" + w + "x" + h + ":" + l); }
+        public void onAudio(int t, byte[] d, int o, int l) { lastAudioType = t; lastAudioLen = l; events.add("audio:" + t + ":" + l); }
+        public void onAudioCommand(int c) { events.add("audiocmd:" + c); }
+        public void onStatus(String m) { }
+        public void onError(Exception e) { events.add("error:" + e.getMessage()); }
+        String next() throws InterruptedException { String s = events.poll(3, TimeUnit.SECONDS); return s == null ? "(timeout)" : s; }
+    }
+
+    static ByteBuffer le(int n) { return ByteBuffer.allocate(n).order(ByteOrder.LITTLE_ENDIAN); }
+
+    public static void main(String[] a) throws Exception {
+        System.out.println("== Encodage ==");
+        byte[] hb = Messages.heartbeat().encode();
+        check(hb.length == 16, "heartbeat = 16 octets");
+        check(hb[0] == (byte)0xAA && hb[1] == 0x55 && hb[2] == (byte)0xAA && hb[3] == 0x55, "magic 0x55AA55AA little-endian");
+        ByteBuffer h = ByteBuffer.wrap(hb).order(ByteOrder.LITTLE_ENDIAN);
+        h.getInt(); h.getInt(); int t = h.getInt(); int c = h.getInt();
+        check(t == 0xAA && c == ~0xAA, "type 0xAA et controle ~type");
+
+        Msg touch = Messages.touch(Msg.TOUCH_DOWN, 0.5f, 1.2f);
+        ByteBuffer tb = ByteBuffer.wrap(touch.payload).order(ByteOrder.LITTLE_ENDIAN);
+        check(tb.getInt() == 14 && tb.getInt() == 5000 && tb.getInt() == 10000, "tactile mis a l'echelle 0..10000 et borne");
+
+        Msg sf = Messages.sendNumber("/tmp/screen_dpi", 160);
+        ByteBuffer sb = ByteBuffer.wrap(sf.payload).order(ByteOrder.LITTLE_ENDIAN);
+        int nl = sb.getInt(); byte[] name = new byte[nl]; sb.get(name);
+        check(new String(name, "US-ASCII").equals("/tmp/screen_dpi\0") && sb.getInt() == 4 && sb.getInt() == 160, "SendFile nom NUL-termine + contenu");
+
+        boolean rejected = false;
+        try { byte[] bad = hb.clone(); bad[12] = 0; Msg.decodeHeader(bad); } catch (Msg.ProtocolException e) { rejected = true; }
+        check(rejected, "en-tete corrompu rejete");
+
+        System.out.println("== Session avec faux dongle ==");
+        FakeTransport tr = new FakeTransport();
+        Recorder rec = new Recorder();
+        DongleConfig cfg = new DongleConfig();
+        DongleSession s = new DongleSession(tr, cfg, rec);
+        s.start();
+        Thread.sleep(1300);
+        List<Integer> types = new ArrayList<Integer>();
+        synchronized (tr.sent) { for (Msg m : tr.sent) types.add(m.type); }
+        check(types.size() >= 12, "sequence d'init envoyee (" + types.size() + " messages)");
+        check(types.get(0) == Msg.SEND_FILE && types.get(1) == Msg.OPEN, "DPI puis OPEN en tete");
+        Msg open = tr.sent.get(1);
+        ByteBuffer ob = ByteBuffer.wrap(open.payload).order(ByteOrder.LITTLE_ENDIAN);
+        check(ob.getInt() == 800 && ob.getInt() == 480 && ob.getInt() == 30 && ob.getInt() == 5, "OPEN 800x480 30 i/s H.264");
+        boolean hasConnect = false;
+        synchronized (tr.sent) { for (Msg m : tr.sent) if (m.type == Msg.COMMAND && ByteBuffer.wrap(m.payload).order(ByteOrder.LITTLE_ENDIAN).getInt() == Msg.CMD_WIFI_CONNECT) hasConnect = true; }
+        check(hasConnect, "commande wifiConnect envoyee apres 1 s");
+
+        // FK2Droid : mode Android Auto envoye pendant l'initialisation
+        int awm = -1;
+        synchronized (tr.sent) {
+            for (int i = 0; i < tr.sent.size(); i++) {
+                Msg m = tr.sent.get(i);
+                if (m.type == Msg.SEND_FILE && new String(m.payload, "US-ASCII").contains("/etc/android_work_mode")) awm = i;
+            }
+        }
+        check(awm > 1, "fichier /etc/android_work_mode envoye a l'init");
+        if (awm > 1) {
+            ByteBuffer ab = ByteBuffer.wrap(tr.sent.get(awm).payload).order(ByteOrder.LITTLE_ENDIAN);
+            int anl = ab.getInt(); ab.position(4 + anl);
+            check(ab.getInt() == 4 && ab.getInt() == 1, "android_work_mode = 1 (entier 32 bits)");
+        }
+
+        tr.dongleSends(new Msg(Msg.PLUGGED, le(8).putInt(Msg.PHONE_ANDROID_AUTO).putInt(1).array()));
+        check(rec.next().equals("connected:5:true"), "PLUGGED -> Android Auto sans fil");
+
+        byte[] h264 = {0,0,0,1,0x67,1,2,3,0,0,0,1,0x65,9,9,9};
+        ByteBuffer vb = le(20 + h264.length); vb.putInt(800).putInt(480).putInt(0).putInt(0).putInt(0).put(h264);
+        tr.dongleSends(new Msg(Msg.VIDEO_DATA, vb.array()));
+        check(rec.next().equals("video:800x480:16") && Arrays.equals(rec.lastVideo, h264), "VIDEO_DATA -> H.264 intact");
+
+        byte[] pcm = new byte[4096];
+        ByteBuffer ab = le(12 + pcm.length); ab.putInt(4).putFloat(1f).putInt(1).put(pcm);
+        tr.dongleSends(new Msg(Msg.AUDIO_DATA, ab.array()));
+        check(rec.next().equals("audio:4:4096"), "AUDIO_DATA PCM 48 kHz");
+
+        ByteBuffer cb = le(13); cb.putInt(5).putFloat(0f).putInt(3).put((byte) Msg.AUDIO_SIRI_START);
+        tr.dongleSends(new Msg(Msg.AUDIO_DATA, cb.array()));
+        check(rec.next().equals("audiocmd:8"), "commande audio SIRI_START");
+
+        // Gros message (> 16 Ko) pour verifier la reassemblage
+        byte[] big = new byte[300000]; new Random(1).nextBytes(big); big[0]=0;big[1]=0;big[2]=1;big[3]=0x65;
+        ByteBuffer bb = le(20 + big.length); bb.putInt(800).putInt(480).putInt(0).putInt(0).putInt(0).put(big);
+        tr.dongleSends(new Msg(Msg.VIDEO_DATA, bb.array()));
+        check(rec.next().startsWith("video:800x480:300000") && Arrays.equals(rec.lastVideo, big), "trame video de 300 Ko reassemblee");
+
+        tr.dongleSends(new Msg(Msg.HEARTBEAT, null));
+        int sentBefore = tr.sent.size();
+        tr.dongleSends(new Msg(Msg.UNPLUGGED, null));
+        check(rec.next().equals("disconnected"), "UNPLUGGED -> deconnexion (heartbeat ignore)");
+        Thread.sleep(200);
+        boolean resent = false;
+        synchronized (tr.sent) {
+            for (int i = sentBefore; i < tr.sent.size(); i++) {
+                Msg m = tr.sent.get(i);
+                if (m.type == Msg.SEND_FILE && new String(m.payload, "US-ASCII").contains("android_work_mode")) resent = true;
+            }
+        }
+        check(resent, "mode Android Auto renvoye apres deconnexion du telephone");
+
+        System.out.println("== Tactile multipoint (0x17) ==");
+        Msg mt = Messages.multiTouch(new float[]{0.25f, 1.5f}, new float[]{0.5f, -1f},
+                new int[]{Msg.MT_DOWN, Msg.MT_MOVE}, new int[]{0, 1}, 2);
+        ByteBuffer mb = ByteBuffer.wrap(mt.payload).order(ByteOrder.LITTLE_ENDIAN);
+        check(mt.type == 0x17 && mt.payload.length == 32, "2 doigts = 32 octets, type 0x17");
+        check(mb.getFloat() == 0.25f && mb.getFloat() == 0.5f && mb.getInt() == 1 && mb.getInt() == 0, "doigt 1 : x, y flottants, appui, id 0");
+        check(mb.getFloat() == 1f && mb.getFloat() == 0f && mb.getInt() == 2 && mb.getInt() == 1, "doigt 2 borne 0..1, glissement, id 1");
+        Msg mv = Messages.multiTouch(new float[]{0.1f, 0.2f}, new float[]{0.1f, 0.2f}, new int[]{2, 2}, new int[]{0, 1}, 2);
+        check(Messages.isTouchMove(mv) && !Messages.isTouchMove(mt), "glissement multipoint reconnu (fusionnable)");
+
+        System.out.println("== Tactile (1.7 : envoi asynchrone, glissements fusionnes) ==");
+        tr.writeDelayMs = 3;   // USB lent / occupe
+        int before = tr.sent.size();
+        long t0 = System.nanoTime();
+        s.sendTouch(Msg.TOUCH_DOWN, 0.1f, 0.5f);
+        for (int i = 1; i <= 60; i++) s.sendTouch(Msg.TOUCH_MOVE, 0.1f + i * 0.01f, 0.5f);
+        s.sendTouch(Msg.TOUCH_UP, 0.7f, 0.5f);
+        long callMs = (System.nanoTime() - t0) / 1000000L;
+        check(callMs < 20, "62 evenements tactiles sans bloquer l'appelant (" + callMs + " ms)");
+        Thread.sleep(600);
+        tr.writeDelayMs = 0;
+        List<Msg> touches = new ArrayList<Msg>();
+        synchronized (tr.sent) { for (Msg m : tr.sent.subList(before, tr.sent.size())) if (m.type == Msg.TOUCH) touches.add(m); }
+        int moves = 0, lastMoveX = -1;
+        for (Msg m : touches) {
+            ByteBuffer pb = ByteBuffer.wrap(m.payload).order(ByteOrder.LITTLE_ENDIAN);
+            int act = pb.getInt(), x = pb.getInt();
+            if (act == Msg.TOUCH_MOVE) { moves++; lastMoveX = x; }
+        }
+        int firstAct = ByteBuffer.wrap(touches.get(0).payload).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        int lastAct = ByteBuffer.wrap(touches.get(touches.size() - 1).payload).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        check(firstAct == Msg.TOUCH_DOWN && lastAct == Msg.TOUCH_UP, "appui et relache jamais perdus, dans l'ordre");
+        check(moves >= 1 && moves < 60, "glissements fusionnes (" + moves + " envoyes sur 60)");
+        check(lastMoveX == 7000, "derniere position du doigt transmise (x=" + lastMoveX + ")");
+
+        Thread.sleep(2300);
+        int beats = 0;
+        synchronized (tr.sent) { for (Msg m : tr.sent) if (m.type == Msg.HEARTBEAT) beats++; }
+        check(beats >= 1, "heartbeat envoye toutes les 2 s (" + beats + ")");
+
+        s.stop();
+        System.out.println(failures == 0 ? "\nTOUS LES TESTS PASSENT" : "\n" + failures + " ECHEC(S)");
+        System.exit(failures == 0 ? 0 : 1);
+    }
+}
