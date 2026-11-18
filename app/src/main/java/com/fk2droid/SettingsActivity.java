@@ -18,7 +18,7 @@ public class SettingsActivity extends PreferenceActivity {
     @SuppressWarnings("deprecation")
     private void setSummary(String key, String text) {
         android.preference.Preference p = findPreference(key);
-        if (p != null && text != null) p.setSummary(text);
+        if (p != null && text != null) p.setSummary(I18n.t(text));
     }
 
     /** Recharge l'ecran au retour du test du micro, qui peut avoir change des reglages. */
@@ -30,9 +30,9 @@ public class SettingsActivity extends PreferenceActivity {
         addPreferencesFromResource(R.xml.preferences);
         android.preference.Preference log = findPreference(MediaKeys.PREF_KEY_LOG);
         String keys = getPreferenceManager().getSharedPreferences().getString(MediaKeys.PREF_KEY_LOG, "");
-        if (log != null && !keys.isEmpty()) log.setSummary(keys);
+        if (log != null && !keys.isEmpty()) log.setSummary(I18n.t(keys));
         android.preference.Preference vd = findPreference("video_decoder_status");
-        if (vd != null) vd.setSummary(com.fk2droid.video.VideoPipeline.decoderDiagnostic());
+        if (vd != null) vd.setSummary(I18n.t(com.fk2droid.video.VideoPipeline.decoderDiagnostic()));
         setSummary("phone_status", Stats.phoneDiag);
         setSummary("keyframe_status", com.fk2droid.video.VideoPipeline.keyframeDiag);
         AutoService svc = AutoService.get();
@@ -40,6 +40,6 @@ public class SettingsActivity extends PreferenceActivity {
                 : "FK2Droid n'est pas lance");
         android.preference.Preference sw = findPreference(HondaSteering.PREF_STATUS);
         String st = getPreferenceManager().getSharedPreferences().getString(HondaSteering.PREF_STATUS, "");
-        if (sw != null && !st.isEmpty()) sw.setSummary(st);
+        if (sw != null && !st.isEmpty()) sw.setSummary(I18n.t(st));
     }
 }

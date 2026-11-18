@@ -1,5 +1,13 @@
 # Historique des versions — FK2Droid
 
+## 1.0-test2 — 18 novembre 2026 (version anglaise)
+
+- **Appli bilingue** : anglais par défaut, français quand le Honda Connect est réglé en français
+  (réglages et listes dans `values/` et `values-fr/`, messages d'état et de diagnostic traduits à
+  l'affichage par `I18n`, journaux inchangés). Vérifié dans l'émulateur dans les deux langues.
+- **Modes d'emploi en anglais** : `User_guide_FK2Droid_RC3.pdf` et `User_guide_FK2Droid_all_versions.pdf`.
+- versionCode 2 ; aucune autre modification du fonctionnement.
+
 ## 1.0-test — 18 novembre 2026 (première version, à valider en voiture)
 
 FK2Droid est dérivé de **FK2Play 2.1** (CarPlay, validé en voiture) et affiche **Android Auto** avec le même

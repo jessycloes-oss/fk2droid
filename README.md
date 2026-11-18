@@ -1,11 +1,11 @@
 # FK2Droid — Android Auto sur le Honda Connect (Android 4.0.4)
 
-![statut](https://img.shields.io/badge/version-1.0--test-orange)
+![statut](https://img.shields.io/badge/version-1.0--test2-orange)
 ![android](https://img.shields.io/badge/Android-4.0.4%20(API%2015)-green)
 ![licence](https://img.shields.io/badge/licence-MIT-blue)
 
 > [!WARNING]
-> **Version 1.0-test (18 novembre 2026) — pas encore testée en voiture.** FK2Droid reprend tout le moteur de
+> **Version 1.0-test2 (18 novembre 2026) — pas encore testée en voiture.** Appli en français ou en anglais selon la langue du Honda. FK2Droid reprend tout le moteur de
 > [FK2Play 2.1](https://github.com/jessycloes-oss/fk2play) (validé en voiture : décodage vidéo matériel du Tegra 3,
 > tactile, son, appels via le kit mains libres d'origine, touches du volant, arrière-plan) et l'adapte à
 > **Android Auto**. Vérifié sur un Honda Connect simulé (Android 4.0.4) avec un faux dongle.
@@ -28,9 +28,10 @@ Dernière version : page [**Releases**](../../releases).
 | Fichier | Usage |
 |---|---|
 | `HondaAppCenter_A1.apk` | FK2Droid **déjà renommé** pour l'installateur du Honda Connect (racine d'une clé USB FAT32). |
-| `FK2Droid-1.0-test.apk` | Le même fichier sous son vrai nom. |
+| `FK2Droid-1.0-test2.apk` | Le même fichier sous son vrai nom. |
 | `Mode_emploi_FK2Droid_toutes_versions.pdf` | Mode d'emploi RC3 à RC8 ([docs](docs/)). |
 | `Mode_emploi_FK2Droid_RC3.pdf` | Mode d'emploi illustré pour les Honda Connect **RC3** (build `09.08C.00.xxxx`). |
+| `User_guide_FK2Droid_all_versions.pdf` · `User_guide_FK2Droid_RC3.pdf` | The same guides in **English**. |
 
 Signé avec la clé de FK2Play — SHA-256 du certificat :
 `8D:F7:C2:BD:D0:F1:B9:3E:DF:61:1F:5D:22:06:26:4C:23:65:39:41:EE:7E:39:A9:C8:54:B7:27:D6:CC:29:26`
@@ -88,5 +89,8 @@ CarPlay app for the same head unit). **1.0-test is not yet road-tested.** Requir
 5 GHz Wi-Fi, Honda Permissions (S_Mike, XDA). Install `HondaAppCenter_A1.apk` from a FAT32 USB stick, add a
 Process Controls entry for `com.fk2droid` (THIRD_PARTY, NAVI, SoundOut/LastMode ON, SoundInterrupt/
 SoundInterruptMute/ProcessKillTarget OFF), plug the dongle, pair the phone with **FK2Droid** over Bluetooth.
+The app is in English (French when the head unit is set to French). English guides:
+[User_guide_FK2Droid_all_versions.pdf](docs/User_guide_FK2Droid_all_versions.pdf) and
+[User_guide_FK2Droid_RC3.pdf](docs/User_guide_FK2Droid_RC3.pdf). Test reports: [form](../../issues/new?template=rapport-de-test.yml).
 
 *Android Auto is a trademark of Google LLC. Not affiliated with Google, Honda or Carlinkit. Use at your own risk.*

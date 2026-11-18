@@ -1,4 +1,4 @@
-# Modes d'emploi FK2Droid 1.0-test
+# Modes d'emploi FK2Droid 1.0-test2 / User guides
 
 > [!WARNING]
 > **Version d'essai**, pas encore testée en voiture. Vos [rapports de test](../../../issues/new?template=rapport-de-test.yml) sont les bienvenus.
@@ -7,8 +7,10 @@
 |---|---|
 | [Mode_emploi_FK2Droid_RC3.pdf](Mode_emploi_FK2Droid_RC3.pdf) | Honda Connect **RC3** (build `09.08C.00.xxxx`) : guide pas à pas illustré. |
 | [Mode_emploi_FK2Droid_toutes_versions.pdf](Mode_emploi_FK2Droid_toutes_versions.pdf) | Toutes versions (RC3 à RC8), avec les chemins RC7 / RC8. |
+| [User_guide_FK2Droid_RC3.pdf](User_guide_FK2Droid_RC3.pdf) | **English** — RC3 Honda Connect (build `09.08C.00.xxxx`), step by step. |
+| [User_guide_FK2Droid_all_versions.pdf](User_guide_FK2Droid_all_versions.pdf) | **English** — all versions (RC3 to RC8). |
 
-Les PDF sont générés par `source/gen.py` (HTML → PDF avec Chrome sans interface, puis `source/footer.py`
+Les PDF sont générés par `source/gen.py` (français) et `source/gen_en.py` (anglais) (HTML → PDF avec Chrome sans interface, puis `source/footer.py`
 pour les numéros de page).
 
 ## Résumé (RC3 à RC6.1)

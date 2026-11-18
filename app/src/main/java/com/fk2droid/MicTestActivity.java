@@ -34,18 +34,21 @@ public class MicTestActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        setTitle("Test du micro de la voiture");
+        setTitle(I18n.t("Test du micro de la voiture"));
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         int pad = 16;
         root.setPadding(pad, pad, pad, pad);
         TextView intro = new TextView(this);
         intro.setTextSize(16);
-        intro.setText("A l'arret. Appuyez sur le bouton puis PARLEZ SANS ARRET (comptez a voix haute) "
+        intro.setText(I18n.pick("A l'arret. Appuyez sur le bouton puis PARLEZ SANS ARRET (comptez a voix haute) "
                 + "pendant environ 20 secondes. FK2Droid essaie toutes les facons d'ouvrir le micro "
-                + "et garde celle qui vous entend le mieux.");
+                + "et garde celle qui vous entend le mieux.",
+                "While parked. Press the button then TALK WITHOUT STOPPING (count out loud) "
+                + "for about 20 seconds. FK2Droid tries every way to open the microphone "
+                + "and keeps the one that hears you best."));
         start = new Button(this);
-        start.setText("Lancer le test du micro");
+        start.setText(I18n.t("Lancer le test du micro"));
         start.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { runTest(); }
         });
@@ -87,7 +90,7 @@ public class MicTestActivity extends Activity {
         start.setEnabled(false);
         log.setText("");
         verdict.setTextColor(0xFFFFD400);
-        verdict.setText("PARLEZ MAINTENANT, sans arreter... (environ 20 secondes)");
+        verdict.setText(I18n.t("PARLEZ MAINTENANT, sans arreter... (environ 20 secondes)"));
         new Thread(new Runnable() {
             public void run() {
                 int bestSource = -1, bestRate = 0, bestRms = 0;
@@ -97,11 +100,11 @@ public class MicTestActivity extends Activity {
                         int[] r = measure(src, rate);
                         String name = src < SOURCE_NAMES.length ? SOURCE_NAMES[src] : String.valueOf(src);
                         String res;
-                        if (r == null) res = "refuse";
+                        if (r == null) res = I18n.pick("refuse", "refused");
                         else if (r[0] < 0) res = "bloque (aucune donnee)";
                         else res = "niveau " + r[1] + (r[1] == 0 ? " (silence total)" : "")
                                 + ", " + r[0] + "% des donnees";
-                        print(String.format("%-20s %5d Hz : %s", name, rate, res));
+                        print(String.format("%-20s %5d Hz : %s", name, rate, I18n.t(res)));
                         if (r != null && r[0] >= 50 && r[1] > bestRms) {
                             bestRms = r[1]; bestSource = src; bestRate = rate;
                         }
@@ -152,18 +155,26 @@ public class MicTestActivity extends Activity {
             e.putString("mic_rate", String.valueOf(rate));
             e.putBoolean("car_mic", true);
             String name = src < SOURCE_NAMES.length ? SOURCE_NAMES[src] : String.valueOf(src);
-            msg = "\nMICRO TROUVE : " + name + " a " + rate + " Hz (niveau " + rms + ").\n"
+            msg = I18n.pick("\nMICRO TROUVE : " + name + " a " + rate + " Hz (niveau " + rms + ").\n"
                     + "Reglage enregistre et \"Utiliser le micro de la voiture\" active.\n"
-                    + "Refaites un appel pour verifier. Merci d'envoyer une photo de cet ecran.";
+                    + "Refaites un appel pour verifier. Merci d'envoyer une photo de cet ecran.",
+                    "\nMICROPHONE FOUND: " + name + " at " + rate + " Hz (level " + rms + ").\n"
+                    + "Setting saved and \"Use the car microphone\" enabled.\n"
+                    + "Make a call to check. Please send a photo of this screen.");
         } else {
             e.putString("mic_source", "auto");
             e.putString("mic_rate", "auto");
             e.putBoolean("car_mic", false);
-            msg = "\nAUCUN MICRO UTILISABLE : Android ne recoit pas le son du micro de la voiture.\n"
+            msg = I18n.pick("\nAUCUN MICRO UTILISABLE : Android ne recoit pas le son du micro de la voiture.\n"
                     + "\"Utiliser le micro de la voiture\" a ete desactive (vous entendrez vos appels).\n"
                     + "Solution conseillee : cochez \"Appels via le Bluetooth de la voiture\" et gardez\n"
                     + "le telephone connecte a HandsFreeLink. Sinon : dongle avec micro (Carlinkit CCPA-MIC).\n"
-                    + "Merci d'envoyer une photo de cet ecran.";
+                    + "Merci d'envoyer une photo de cet ecran.",
+                    "\nNO USABLE MICROPHONE: Android gets no sound from the car microphone.\n"
+                    + "\"Use the car microphone\" has been disabled (you will hear your calls).\n"
+                    + "Recommended: tick \"Calls via the car's Bluetooth\" and keep\n"
+                    + "the phone connected to HandsFreeLink. Otherwise: dongle with mic (Carlinkit CCPA-MIC).\n"
+                    + "Please send a photo of this screen.");
         }
         e.commit();
         final boolean ok = src >= 0 && rms >= MIN_RMS;
@@ -173,7 +184,7 @@ public class MicTestActivity extends Activity {
                 verdict.setText(msg.trim());
                 running = false;
                 start.setEnabled(true);
-                start.setText("Relancer le test");
+                start.setText(I18n.t("Relancer le test"));
             }
         });
     }

@@ -147,7 +147,7 @@ public final class MediaKeys {
             for (int i = 0; i < prev.length && i < KEY_LOG_MAX - 1; i++) b.append('\n').append(prev[i]);
             p.edit().putString(PREF_KEY_LOG, b.toString()).apply();
             if (p.getBoolean("show_keycodes", false)) {
-                Toast.makeText(ctx.getApplicationContext(), "Touche " + line, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ctx.getApplicationContext(), I18n.t("Touche " + line), Toast.LENGTH_SHORT).show();
             }
         } catch (RuntimeException ignored) {
         }

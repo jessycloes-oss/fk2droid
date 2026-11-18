@@ -2,7 +2,7 @@
 """Genere les deux modes d'emploi FK2Droid (RC3 illustre + toutes versions) en HTML, puis PDF via Chrome."""
 import os, sys
 
-VER = "1.0-test"
+VER = "1.0-test2"
 DATE = "18 novembre 2026"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -69,7 +69,7 @@ pas encore en voiture : tes retours décideront de la 1.0.</div>
 <b>Android Auto</b>, et FK2Droid affiche Android Auto sur l'écran 7" du Honda Connect, comme FK2Play affiche CarPlay.</p>
 
 <h3>Ce qui est nouveau par rapport à FK2Play</h3>
-<table style="font-size:8.9pt">
+<table style="font-size:8.4pt">
 <tr><th style="width:32%">Fonction</th><th>Détail</th></tr>
 <tr><td>Mode Android Auto du dongle</td><td>FK2Droid envoie au dongle le réglage <code>android_work_mode = 1</code> à chaque
 connexion, et le renvoie après chaque déconnexion du téléphone (le dongle l'oublie).</td></tr>
@@ -81,11 +81,12 @@ FK2Droid revient tout seul sur Android Auto quand la caméra s'éteint.</td></tr
 <tr><td>Tactile multipoint (option)</td><td>Pincer pour zoomer dans Google Maps. Décoché par défaut : à essayer.</td></tr>
 <tr><td>Image qui ne revient pas</td><td>Si le téléphone ne renvoie pas d'image au retour sur FK2Droid, la connexion est
 rouverte automatiquement (2 fois au plus). Une ligne de diagnostic indique si c'est arrivé.</td></tr>
-<tr><td>Nom Bluetooth</td><td>Le dongle s'annonce <b>FK2Droid</b> (modifiable).</td></tr>
+<tr><td>Nom Bluetooth · langue</td><td>Le dongle s'annonce <b>FK2Droid</b> (modifiable). L'appli est en français, ou en anglais
+si le Honda Connect est réglé dans une autre langue (depuis la 1.0-test2).</td></tr>
 </table>
 
 <h3>À tester en voiture, dans cet ordre</h3>
-<ol style="font-size:9.6pt">
+<ol style="font-size:9.1pt">
 <li>Le téléphone Android se connecte et Android Auto s'affiche (message <span class="ui">Android Auto connecte (sans fil)</span>).</li>
 <li>Tactile, musique, voix du GPS, touches piste du volant.</li>
 <li>Quitter FK2Droid (radio, réglages) puis revenir : l'image doit revenir en moins de 2 secondes.</li>
@@ -96,10 +97,9 @@ rouverte automatiquement (2 fois au plus). Une ligne de diagnostic indique si c'
 <p>Ensuite, photographie <b class="menu">Réglages FK2Droid › Diagnostic</b> : lignes <i>Téléphone vu par le dongle</i>,
 <i>Images clés</i>, <i>État du Honda</i> et <i>Décodeur vidéo actif</i>.</p>
 
-<div class="box info" style="font-size:9.4pt"><b>Tu as déjà FK2Play ?</b> FK2Droid s'installe <b>à côté</b> (appli séparée, paquet
-<code>com.fk2droid</code>), avec le même dongle et la même clé de signature. Honda Permissions est déjà en place :
-va directement à l'étape « Installer FK2Droid ». Une seule des deux applis peut utiliser le dongle à la fois
-(voir « FK2Play et FK2Droid ensemble »).</div>
+<div class="box info" style="font-size:8.9pt"><b>Tu as déjà FK2Play ?</b> FK2Droid s'installe <b>à côté</b>
+(paquet <code>com.fk2droid</code>, même dongle, même clé). Va directement à « Installer FK2Droid ». Une seule des deux
+applis utilise le dongle à la fois.</div>
 
 """
 

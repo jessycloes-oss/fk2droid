@@ -147,7 +147,7 @@ public class AutoService extends Service implements DongleListener,
         Notification n = new Notification.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("FK2Droid")
-                .setContentText("Android Auto actif - toucher pour revenir")
+                .setContentText(I18n.t("Android Auto actif - toucher pour revenir"))
                 .setContentIntent(pi)
                 .setOngoing(true)
                 .getNotification();
@@ -182,7 +182,7 @@ public class AutoService extends Service implements DongleListener,
     public int phoneType() { return phoneType; }
     public HondaState honda() { return honda; }
     public DongleConfig config() { return config; }
-    public String baseStatus() { return baseStatus; }
+    public String baseStatus() { return I18n.t(baseStatus); }
 
     /**
      * Nouveaux reglages : ceux envoyes au dongle a l'ouverture imposent de rouvrir la session,
@@ -572,6 +572,7 @@ public class AutoService extends Service implements DongleListener,
     }
 
     private void status(String s, boolean permanent, boolean force) {
+        s = I18n.t(s);
         if (permanent) baseStatus = s;
         Ui u = ui;
         if (u != null) u.onServiceStatus(s, permanent, force);
