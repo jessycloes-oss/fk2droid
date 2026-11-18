@@ -1,33 +1,57 @@
-name: "Rapport de test / Test report"
-description: "J'ai essayé FK2Droid dans ma voiture (réussi ou non) / I tried FK2Droid in my car"
-title: "[Test] <modèle de voiture> – <version RC> – <résultat>"
+name: "Rapport de test FK2Droid / Test report"
+description: "J'ai essayé FK2Droid (Android Auto) dans ma voiture, réussi ou non / I tried FK2Droid in my car"
+title: "[Test] <voiture> – <version RC> – <téléphone> – <résultat>"
 labels: ["rapport de test"]
 body:
   - type: markdown
     attributes:
       value: |
-        Merci ! Chaque essai, même raté, fait avancer le projet. Une photo de la fiche de résultats
-        (dernière page du mode d'emploi) peut remplacer une partie des champs.
+        Merci ! Chaque essai, même raté, sert à optimiser FK2Droid. Les photos des écrans de
+        **Réglages FK2Droid › Diagnostic** sont les plus utiles : elles peuvent remplacer une partie des champs.
         Thanks! Every test, even a failed one, helps. English answers are welcome.
+        Photos of **FK2Droid Settings › Diagnostic** are the most useful part.
+  - type: input
+    id: version
+    attributes:
+      label: "Version de FK2Droid / FK2Droid version"
+      placeholder: "1.0-test"
+    validations:
+      required: true
   - type: input
     id: voiture
     attributes:
-      label: "Voiture (modèle, année) / Car (model, year)"
-      placeholder: "Honda Civic Type R FK2 2016"
+      label: "Voiture (modèle, année, pays) / Car (model, year, country)"
+      placeholder: "Honda Civic Type R FK2 2016, Belgique"
     validations:
       required: true
   - type: input
     id: build
     attributes:
       label: "Numéro de build (Réglages → Android → À propos) / Build number"
-      placeholder: "09.08C.00.1123"
+      placeholder: "09.08C.00.1123 (RC3)"
     validations:
       required: true
   - type: input
-    id: mainsoft
+    id: telephone
     attributes:
-      label: "Main Soft (menu diagnostic), si connu / if known"
-      placeholder: "31.00.cf"
+      label: "Téléphone : marque, modèle, version d'Android, version de l'appli Android Auto / Phone, Android version, Android Auto app version"
+      placeholder: "Samsung Galaxy S23, Android 15, Android Auto 14.2"
+    validations:
+      required: true
+  - type: input
+    id: dongle
+    attributes:
+      label: "Dongle : modèle exact (CCPA ou CCPA-MIC) et message « Firmware dongle : … » / Dongle model and firmware"
+      placeholder: "CPC200-CCPA, 2025.02.25.1521CAY"
+    validations:
+      required: true
+  - type: dropdown
+    id: fk2play
+    attributes:
+      label: "FK2Play aussi installé ? / FK2Play also installed?"
+      options:
+        - "Oui / Yes"
+        - "Non / No"
   - type: dropdown
     id: install
     attributes:
@@ -39,44 +63,82 @@ body:
     validations:
       required: true
   - type: input
-    id: diag_sans
-    attributes:
-      label: "Ligne de diagnostic SANS dongle / Diagnostic line WITHOUT dongle"
-      placeholder: "[USB hote Android : oui | aucun peripherique vu]"
-  - type: input
     id: diag_avec
     attributes:
-      label: "Ligne de diagnostic / messages AVEC dongle / WITH dongle"
-      placeholder: "Dongle initialise... / vus : 1314:1521"
+      label: "Messages affichés au branchement du dongle / Messages when plugging the dongle"
+      placeholder: "Dongle initialise, en attente du telephone Android... / vus : 1314:1521"
+    validations:
+      required: true
+  - type: dropdown
+    id: bluetooth
+    attributes:
+      label: "Nom Bluetooth vu par le téléphone / Bluetooth name seen by the phone"
+      options:
+        - "FK2Droid"
+        - "AutoKit-xxxx"
+        - "Rien / Nothing"
+        - "Autre / Other (préciser dans les détails)"
+  - type: dropdown
+    id: connexion
+    attributes:
+      label: "Android Auto s'affiche ? / Does Android Auto show up?"
+      options:
+        - "Oui, sans fil / Yes, wireless"
+        - "Oui, filaire / Yes, wired"
+        - "Non : le téléphone ne propose jamais Android Auto / Phone never offers Android Auto"
+        - "Non : message « Recopie d'ecran Android » / Screen mirroring instead"
+        - "Non : autre (préciser) / Other"
     validations:
       required: true
   - type: input
-    id: dongle
+    id: delai
     attributes:
-      label: "Dongle (modèle exact, message « Firmware dongle »)"
-      placeholder: "Carlinkit CPC200-CCPA, 2025.02.25.1521CAY"
+      label: "Délai entre le démarrage et l'affichage d'Android Auto (secondes) / Delay until Android Auto shows (s)"
+      placeholder: "25"
   - type: checkboxes
     id: fonctions
     attributes:
       label: "Ce qui fonctionne / What works"
       options:
-        - label: "CarPlay s'affiche / CarPlay shows up"
         - label: "Image fluide / Smooth video"
         - label: "Tactile précis / Touch accurate"
+        - label: "Tactile multipoint (zoom à deux doigts), si essayé / Pinch zoom, if tried"
         - label: "Musique / Music"
         - label: "Voix du GPS / Navigation voice"
-        - label: "Siri m'entend / Siri hears me"
-        - label: "Appels téléphoniques / Phone calls"
-        - label: "Touches du volant / Steering wheel buttons"
-        - label: "Caméra de recul OK / Reverse camera still OK"
+        - label: "Appels (avec « Appels via le Bluetooth de la voiture ») / Calls via car Bluetooth"
+        - label: "Assistant Google m'entend (dongle CCPA-MIC) / Google Assistant hears me"
+        - label: "Touches piste du volant / Steering wheel track buttons"
+        - label: "Volume au volant (affiché au tableau de bord) / Steering wheel volume"
+        - label: "Retour immédiat sur Android Auto depuis la radio / Instant return from radio"
+        - label: "Retour automatique après un appel / Auto return after a call"
+        - label: "Mode nuit qui suit les phares / Night mode follows headlights"
+        - label: "Retour automatique après la caméra de recul / Auto return after reverse camera"
+        - label: "Reconnexion automatique le lendemain / Auto reconnect next drive"
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: "Réglages FK2Droid › Diagnostic (recopier ou photo) / Diagnostic lines (copy or photo)"
+      description: "Téléphone vu par le dongle · Images clés · État du Honda · Décodeur vidéo actif · Service volant Honda · Dernières touches reçues"
+      placeholder: |
+        Telephone vu par le dongle : Android Auto connecte (sans fil) (18:42:10)
+        Images cles : OK : image cle recue en 320 ms (0 relance(s))
+        Etat du Honda : nuit, ecran Honda 120
+        Decodeur video actif : Materiel : OMX.Nvidia.h264.decode 800x480, ... images, 0 jetees
+        Service volant Honda : connecte (adresse 260, mode C)
+    validations:
+      required: true
+  - type: textarea
+    id: reglages
+    attributes:
+      label: "Réglages modifiés (résolution, images/s, taille d'affichage, mode nuit…) / Changed settings"
   - type: textarea
     id: details
     attributes:
-      label: "Détails, messages d'erreur exacts, photos / Details, exact errors, photos"
+      label: "Problèmes, messages d'erreur exacts, photos ou vidéo / Problems, exact errors, photos or video"
   - type: checkboxes
     id: securite
     attributes:
       label: "Sécurité / Safety"
       options:
-        - label: "J'ai fait le test à l'arrêt / I tested while parked"
+        - label: "J'ai fait l'installation et les réglages à l'arrêt / Installed and set up while parked"
           required: true
